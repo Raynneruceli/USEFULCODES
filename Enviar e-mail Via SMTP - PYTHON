@@ -1,0 +1,97 @@
+import pandas as pd
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email import encoders
+from email.mime.base import MIMEBase
+
+
+#função para envio de emails
+
+remetente= 'TESTE@TESTE.COM'
+senha= 'TESTE'
+
+
+def EnvioEmail(destinatarios,assunto,corpo_html,anexo):
+    # Configurações do servidor SMTP
+    smtp_server = 'smtp.office365.com'
+    port = 587  # Porta do servidor SMTP
+    sender_email = remetente
+    password = senha
+    destinatario = destinatarios
+
+    # Criando uma mensagem
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = ', '.join(destinatarios)
+    message['Subject'] = assunto
+
+     #Anexando o corpo ao email
+    message.attach(MIMEText(corpo_html, 'html'))
+
+    # Anexo
+    with open(anexo, 'rb') as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f'attachment; filename= {anexo}')
+    message.attach(part)
+
+    # Conectando-se ao servidor SMTP
+    server = smtplib.SMTP(smtp_server, port)
+    server.starttls()  # Iniciando a conexão TLS
+    server.login(sender_email, password)  # Login no servidor SMTP
+    # Enviando o email
+    server.sendmail(sender_email,destinatario, message.as_string())
+    server.quit()
+
+def EnvioEmail2(destinatarios,assunto,corpo):
+    # Configurações do servidor SMTP
+    smtp_server = 'smtp.office365.com'
+    port = 587  # Porta do servidor SMTP
+    sender_email = remetente
+    password = senha
+    destinatario = destinatarios
+
+    # Criando uma mensagem
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = ', '.join(destinatarios)
+    message['Subject'] = assunto
+
+     #Anexando o corpo ao email
+    message.attach(MIMEText(corpo, 'plain'))
+
+
+
+    # Conectando-se ao servidor SMTP
+    server = smtplib.SMTP(smtp_server, port)
+    server.starttls()  # Iniciando a conexão TLS
+    server.login(sender_email, password)  # Login no servidor SMTP
+    # Enviando o email
+    server.sendmail(sender_email,destinatario, message.as_string())
+    server.quit()
+
+#-------------------------------------------------------------------
+
+#Envio do email
+
+html = df_html.to_html(index=False) #criando table html
+excel_file = 'cargas.xlsx' #criando xlsx
+df_anexo.to_excel(excel_file, index=False)
+lista_email = ["teste@teste1.com", "teste2@teste2.com"]
+assunto = "teste"
+if len(df_anexo)>0:
+    EnvioEmail(
+        lista_email,
+        assunto,
+        html,
+        excel_file)
+else:
+        EnvioEmail2(
+        lista_email,
+        assunto,'')
+
+
+
+    
