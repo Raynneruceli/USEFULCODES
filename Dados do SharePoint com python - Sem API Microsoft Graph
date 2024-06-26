@@ -1,0 +1,41 @@
+#Código para ler um arquivo no Sharepoint, sem utilizar api do microsoft graph
+
+from office365.sharepoint.client_context import ClientContext
+from office365.runtime.auth.user_credential import UserCredential
+from office365.sharepoint.files.file import File
+import io
+import pandas as pd
+
+# Defina os detalhes de autenticação
+site_url = 'https://suaempresa.sharepoint.com/sites/seusite/'
+username = 'teste@teste.com.br'
+password = 'teste'
+
+# Crie as credenciais do usuário
+credentials = UserCredential(username, password)
+
+# Crie o contexto do cliente
+ctx = ClientContext(site_url).with_credentials(credentials)
+
+# Agora você pode usar o contexto para acessar o SharePoint
+
+# Carregue o arquivo
+
+file_url = '/sites/Seu site/arquivo.xlsx'
+
+# Faça o download do arquivo para um objeto em memória
+
+file = ctx.web.get_file_by_server_relative_url(file_url)
+
+# Utilize BytesIO como arquivo em memória
+file_content = io.BytesIO()
+file.download(file_content).execute_query()
+
+# Posicione o cursor no início do arquivo
+file_content.seek(0)
+
+# Carregue o arquivo Excel em um DataFrame do Pandas
+df = pd.read_excel(file_content)
+
+# Exiba as primeiras linhas do DataFrame
+df
